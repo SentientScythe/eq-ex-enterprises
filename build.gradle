@@ -1,14 +1,17 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import moze_intel.projecte.UpdateJson
 
 import java.util.function.Consumer
 
+import moze_intel.projecte.UpdateJson
+
 plugins {
-    id('java')
     id('eclipse')
     id('idea')
+    id('jacoco')
+    id('java')
     id('maven-publish')
     id('com.gradleup.shadow') version('8.3.6')
     // https://projects.neoforged.net/neoforged/ModDevGradle
@@ -401,5 +404,18 @@ publishing {
                 }
             }
         }
+    }
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
     }
 }
