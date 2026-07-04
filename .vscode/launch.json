@@ -1,0 +1,93 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - eq-ex-enterprises",
+        "order": 0
+      },
+      "projectName": "eq-ex-enterprises",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dprojecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\datagen"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "ClientAlt",
+      "presentation": {
+        "group": "Mod Development - eq-ex-enterprises",
+        "order": 1
+      },
+      "projectName": "eq-ex-enterprises",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\clientAltRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\clientAltRunVmArgs.txt",
+        "-Dfml.modFolders\u003dprojecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\datagen"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Data",
+      "presentation": {
+        "group": "Mod Development - eq-ex-enterprises",
+        "order": 2
+      },
+      "projectName": "eq-ex-enterprises",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\dataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dprojecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\datagen"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - eq-ex-enterprises",
+        "order": 3
+      },
+      "projectName": "eq-ex-enterprises",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\senti\\eq-ex-enterprises\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dprojecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\main;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\api;projecte_datagen%%C:\\Users\\senti\\eq-ex-enterprises\\bin\\datagen"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}
