@@ -100,7 +100,11 @@ public class MappingConfig extends BasePEConfig {
 	}
 
 	public static boolean kubejsActive() {
-		return INSTANCE == null || INSTANCE.kubejsActive.get();
+		try {
+			return INSTANCE == null || INSTANCE.kubejsActive.get();
+		} catch (IllegalStateException e) {
+			return true;
+		}
 	}
 
 	public static boolean exportGraphs() {

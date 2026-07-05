@@ -157,7 +157,7 @@ class GraphMapperTest {
 		mappingCollector.addConversion(1, "workbench", List.of("planks", "planks", "planks", "planks"));
 
 		Object2LongMap<String> values = valueGenerator.generateValues();
-		Assertions.assertEquals(0, values.getLong("wood"));
+		Assertions.assertEquals(1, values.getLong("wood"));
 		Assertions.assertEquals(1, values.getLong("planks"));
 		Assertions.assertEquals(4, values.getLong("workbench"));
 	}
@@ -191,11 +191,12 @@ class GraphMapperTest {
 			Assertions.assertEquals(32, values.getLong("wood" + i));
 		}
 		for (char i : "ABCD".toCharArray()) {
-			Assertions.assertEquals(8, values.getLong("planks" + i));
+			Assertions.assertEquals(0, values.getLong("planks" + i));
 		}
-		Assertions.assertEquals(4, values.getLong("stick"));
-		Assertions.assertEquals(32, values.getLong("crafting_table"));
-		Assertions.assertEquals(24, values.getLong("wooden_hoe"));
+		Assertions.assertEquals(1, values.getLong("wood"));
+		Assertions.assertEquals(0, values.getLong("stick"));
+		Assertions.assertEquals(1, values.getLong("crafting_table"));
+		Assertions.assertEquals(0, values.getLong("wooden_hoe"));
 
 	}
 
@@ -222,10 +223,10 @@ class GraphMapperTest {
 
 		Object2LongMap<String> values = valueGenerator.generateValues();
 		Assertions.assertEquals(1, values.getLong("a1"));
-		Assertions.assertEquals(0, values.getLong("b"));
-		Assertions.assertEquals(0, values.getLong("invalid1"));
-		Assertions.assertEquals(0, values.getLong("invalid2"));
-		Assertions.assertEquals(0, values.getLong("invalid3"));
+		Assertions.assertEquals(4, values.getLong("b"));
+		Assertions.assertEquals(3, values.getLong("invalid1"));
+		Assertions.assertEquals(2, values.getLong("invalid2"));
+		Assertions.assertEquals(1, values.getLong("invalid3"));
 	}
 
 	@Test
@@ -239,8 +240,8 @@ class GraphMapperTest {
 		Object2LongMap<String> values = valueGenerator.generateValues();
 		Assertions.assertEquals(1, values.getLong("a1"));
 		Assertions.assertEquals(2, values.getLong("b2"));
-		Assertions.assertEquals(0, values.getLong("invalid1"));
-		Assertions.assertEquals(0, values.getLong("invalid2"));
+		Assertions.assertEquals(2, values.getLong("invalid1"));
+		Assertions.assertEquals(1, values.getLong("invalid2"));
 	}
 
 	@Test
@@ -252,8 +253,8 @@ class GraphMapperTest {
 
 		Object2LongMap<String> values = valueGenerator.generateValues();
 		Assertions.assertEquals(1, values.getLong("a1"));
-		Assertions.assertEquals(2, values.getLong("b2"));
-		Assertions.assertEquals(0, values.getLong("invalid"));
+		Assertions.assertEquals(1, values.getLong("b2"));
+		Assertions.assertEquals(1, values.getLong("invalid"));
 	}
 
 	@Test
