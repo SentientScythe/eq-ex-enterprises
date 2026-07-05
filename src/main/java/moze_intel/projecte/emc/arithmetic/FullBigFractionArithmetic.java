@@ -17,6 +17,11 @@ public class FullBigFractionArithmetic implements IValueArithmetic<BigFraction> 
 	}
 
 	@Override
+	public BigFraction fromLong(long value) {
+		return new BigFraction(value);
+	}
+
+	@Override
 	public boolean isZero(BigFraction value) {
 		return value.getNumerator().signum() == 0;
 	}

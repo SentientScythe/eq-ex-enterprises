@@ -38,6 +38,10 @@ public class MappingConfig extends BasePEConfig {
 	public final CachedBooleanValue dumpToFile;
 	public final CachedBooleanValue usePregenerated;
 	public final CachedBooleanValue logExploits;
+	
+	public final CachedBooleanValue roundingModeCeil;
+	public final CachedBooleanValue kubejsActive;
+	public final CachedBooleanValue exportGraphs;
 
 	private final ModConfigSpec configSpec;
 	private final Map<String, BooleanSupplier> mappersEnabledConfig;
@@ -49,6 +53,10 @@ public class MappingConfig extends BasePEConfig {
 		dumpToFile = CachedBooleanValue.wrap(this, PEConfigTranslations.MAPPING_DUMP_TO_FILE.applyToBuilder(builder).define("dumpToFile", false));
 		usePregenerated = CachedBooleanValue.wrap(this, PEConfigTranslations.MAPPING_PREGENERATED.applyToBuilder(builder).define("usePregenerated", false));
 		logExploits = CachedBooleanValue.wrap(this, PEConfigTranslations.MAPPING_LOG_EXPLOITS.applyToBuilder(builder).define("logFoundExploits", true));
+		
+		roundingModeCeil = CachedBooleanValue.wrap(this, builder.comment("If true, fractional division during calculations rounds up (ceil) instead of down (floor)").define("roundingModeCeil", false));
+		kubejsActive = CachedBooleanValue.wrap(this, builder.comment("If true, KubeJS scripts generated to resolve conflicts will contain active code. If false, they will be commented out.").define("kubejsActive", true));
+		exportGraphs = CachedBooleanValue.wrap(this, builder.comment("If true, exports emc_values.json and recipe_information.json to the config/e3 directory.").define("exportGraphs", true));
 
 		PEConfigTranslations.MAPPING_MAPPERS.applyToBuilder(builder).push("mappers");
 		mappersEnabledConfig = new HashMap<>(mappers.size());
@@ -85,6 +93,18 @@ public class MappingConfig extends BasePEConfig {
 
 	public static boolean logExploits() {
 		return INSTANCE == null || INSTANCE.logExploits.get();
+	}
+
+	public static boolean roundingModeCeil() {
+		return INSTANCE != null && INSTANCE.roundingModeCeil.get();
+	}
+
+	public static boolean kubejsActive() {
+		return INSTANCE == null || INSTANCE.kubejsActive.get();
+	}
+
+	public static boolean exportGraphs() {
+		return INSTANCE == null || INSTANCE.exportGraphs.get();
 	}
 
 	/**

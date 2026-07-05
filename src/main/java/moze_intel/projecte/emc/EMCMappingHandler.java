@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import moze_intel.projecte.PECore;
@@ -25,9 +26,8 @@ import moze_intel.projecte.config.MappingConfig;
 import moze_intel.projecte.config.ProjectEConfig;
 import moze_intel.projecte.emc.arithmetic.HiddenBigFractionArithmetic;
 import moze_intel.projecte.emc.collector.DumpToFileCollector;
-import moze_intel.projecte.emc.collector.LongToBigFractionCollector;
+import moze_intel.projecte.emc.collector.DumpToFileCollector;
 import moze_intel.projecte.emc.components.DataComponentManager;
-import moze_intel.projecte.emc.generator.BigFractionToLongGenerator;
 import moze_intel.projecte.emc.mappers.TagMapper;
 import moze_intel.projecte.emc.pregenerated.PregeneratedEMC;
 import moze_intel.projecte.gameObjs.container.TransmutationContainer;
@@ -70,9 +70,8 @@ public final class EMCMappingHandler {
 	public static void map(ReloadableServerResources serverResources, RegistryAccess registryAccess, ResourceManager resourceManager) {
 		//Start by clearing the cached map so if values are removed say by setting EMC to zero then we respect the change
 		clearEmcMap();
-		SimpleGraphMapper<NormalizedSimpleStack, BigFraction, IValueArithmetic<BigFraction>> mapper = new SimpleGraphMapper<>(new HiddenBigFractionArithmetic());
-		BigFractionToLongGenerator<NormalizedSimpleStack> valueGenerator = new BigFractionToLongGenerator<>(mapper);
-		IExtendedMappingCollector<NormalizedSimpleStack, Long, IValueArithmetic<BigFraction>> mappingCollector = new LongToBigFractionCollector<>(mapper);
+		SimpleGraphMapper<NormalizedSimpleStack, Long, IValueArithmetic<Long>> mapper = new SimpleGraphMapper<>(new moze_intel.projecte.emc.arithmetic.LongArithmetic());
+		IExtendedMappingCollector<NormalizedSimpleStack, Long, IValueArithmetic<Long>> mappingCollector = mapper;
 
 		if (MappingConfig.dumpToFile()) {
 			mappingCollector = new DumpToFileCollector<>(ProjectEConfig.CONFIG_DIR.resolve("mapping_dump.json"), mappingCollector);
@@ -106,11 +105,15 @@ public final class EMCMappingHandler {
 			mappingCollector.finishCollection(registryAccess);
 
 			PECore.debugLog("Starting to generate Values:");
-			Object2LongMap<NormalizedSimpleStack> graphMapperValues = valueGenerator.generateValues();
+			Map<NormalizedSimpleStack, Long> graphMapperValues = mapper.generateValues();
 			PECore.debugLog("Generated Values...");
 
 			updateEmcValues(filterEMCMap(graphMapperValues));
 			PECore.debugLog("Filtered Values...");
+			
+			// e3 specific exports
+			moze_intel.projecte.emc.exporter.GraphExporter.exportEmcValues(emc);
+			moze_intel.projecte.integration.kubejs.RecipeConflictResolver.flush();
 
 			if (usePregenerated && emc != null) {//Note: It should never be null here as we just set it
 				//Should have used pregenerated, but the file was not read => regenerate.
@@ -149,15 +152,16 @@ public final class EMCMappingHandler {
 		return loadIndex;
 	}
 
-	private static Object2LongMap<ItemInfo> filterEMCMap(Object2LongMap<NormalizedSimpleStack> map) {
+	private static Object2LongMap<ItemInfo> filterEMCMap(Map<NormalizedSimpleStack, Long> map) {
 		Object2LongMap<ItemInfo> resultMap = new Object2LongOpenHashMap<>(map.size());
-		for (Iterator<Object2LongMap.Entry<NormalizedSimpleStack>> iterator = Object2LongMaps.fastIterator(map); iterator.hasNext(); ) {
-			Object2LongMap.Entry<NormalizedSimpleStack> entry = iterator.next();
+		for (Map.Entry<NormalizedSimpleStack, Long> entry : map.entrySet()) {
 			if (entry.getKey() instanceof NSSItem nssItem) {
-				//Note: We don't need to check if the value is greater than zero, as our generated values filter out any non positive values
-				ItemInfo info = ItemInfo.fromNSS(nssItem);
-				if (info != null) {//Ensure the item actually exists and is not a tag
-					resultMap.put(info, entry.getLongValue());
+				Long value = entry.getValue();
+				if (value != null && value > 0) {
+					ItemInfo info = ItemInfo.fromNSS(nssItem);
+					if (info != null) {//Ensure the item actually exists and is not a tag
+						resultMap.put(info, value);
+					}
 				}
 			}
 		}

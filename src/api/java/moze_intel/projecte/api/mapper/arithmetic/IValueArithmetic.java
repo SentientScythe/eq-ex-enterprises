@@ -60,6 +60,11 @@ public interface IValueArithmetic<T extends Comparable<T>> {
 	T getZero();
 
 	/**
+	 * @return The value converted from a long
+	 */
+	T fromLong(long value);
+
+	/**
 	 * Adds two values together.
 	 *
 	 * @param a The first value to add.

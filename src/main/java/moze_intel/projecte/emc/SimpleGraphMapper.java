@@ -66,6 +66,13 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 	public Map<T, V> generateValues() {
 		Map<@NotNull T, @NotNull V> values = new HashMap<>();
 
+		// e3 specific: Assign 1 to all leaves that don't have a value
+		for (T key : usedIn.keySet()) {
+			if (!fixValueBeforeInherit.containsKey(key) && !conversionsFor.containsKey(key)) {
+				fixValueBeforeInherit.put(key, arithmetic.fromLong(1));
+			}
+		}
+
 		// All values that changed in previous iteration, so everything depending on it needs to be updated
 		@Nullable
 		Map<@NotNull T, @NotNull V> changedValues = new HashMap<>(fixValueBeforeInherit);
@@ -164,6 +171,13 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 										ingredientValue, valueOrZero(resultValueActual), oldConversion);
 							}
 						} else if (canOverrideZero(key)) {
+							// e3 specific: KubeJS Conflict Resolver
+							moze_intel.projecte.integration.kubejs.RecipeConflictResolver.addConflict(
+								null, 
+								key.toString(), 
+								"Exploit: Result value " + valueOrZero(resultValueActual) + " > Cost " + ingredientValue
+							);
+							
 							if (isDebugGraphmapper()) {
 								debugFormat("Setting {} to 0 because result ({}) > cost ({}): {}", key, valueOrZero(resultValueActual), ingredientValue, conversion);
 								addReason(reasonForChange, conversion.output, "exploit recipe");
