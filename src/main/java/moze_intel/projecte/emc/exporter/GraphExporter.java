@@ -12,6 +12,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import moze_intel.projecte.PECore;
 import moze_intel.projecte.api.ItemInfo;
+import net.neoforged.fml.loading.FMLPaths;
 import moze_intel.projecte.api.nss.NormalizedSimpleStack;
 import moze_intel.projecte.config.MappingConfig;
 import moze_intel.projecte.config.ProjectEConfig;
@@ -25,7 +26,7 @@ public class GraphExporter {
 			return;
 		}
 
-		Path configDir = ProjectEConfig.CONFIG_DIR.resolve("e3");
+		Path configDir = FMLPaths.CONFIGDIR.get().resolve("e3");
 		try {
 			Files.createDirectories(configDir);
 			Path file = configDir.resolve("emc_values.json");
@@ -47,7 +48,7 @@ public class GraphExporter {
 			return;
 		}
 
-		Path configDir = ProjectEConfig.CONFIG_DIR.resolve("e3");
+		Path configDir = FMLPaths.CONFIGDIR.get().resolve("e3");
 		try {
 			Files.createDirectories(configDir);
 			Path file = configDir.resolve("recipe_information.json");
