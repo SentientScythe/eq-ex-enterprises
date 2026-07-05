@@ -259,7 +259,7 @@ public class PECore {
 		}
 	}
 
-	private void dataPackSync(OnDatapackSyncEvent event) {
+	private void serverReload() {
 		if (emcUpdateResourceManager != null) {
 			long start = System.currentTimeMillis();
 			//Clear the cached created tags
@@ -273,6 +273,10 @@ public class PECore {
 			}
 			emcUpdateResourceManager = null;
 		}
+	}
+
+	private void dataPackSync(OnDatapackSyncEvent event) {
+		serverReload();
 		if (event.getPlayer() == null) {
 			List<ServerPlayer> players = event.getPlayerList().getPlayers();
 			if (players.isEmpty()) {
@@ -318,6 +322,7 @@ public class PECore {
 		if (!ThreadCheckUUID.hasRunServer()) {
 			new ThreadCheckUUID(true).start();
 		}
+		serverReload();
 	}
 
 	private void serverQuit(ServerStoppedEvent event) {

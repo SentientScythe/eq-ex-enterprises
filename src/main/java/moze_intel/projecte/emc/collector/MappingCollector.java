@@ -61,6 +61,10 @@ public abstract class MappingCollector<T, V extends Comparable<V>, A extends IVa
 		return usedIn.computeIfAbsent(something, CREATE_CONVERSIONS);
 	}
 
+	public Map<T, ?> getConversionsFor() {
+		return conversionsFor;
+	}
+
 	private void addConversionToIngredientUsages(Conversion conversion) {
 		for (T ingredient : conversion.ingredientsWithAmount.keySet()) {
 			getUsesFor(ingredient).add(conversion);

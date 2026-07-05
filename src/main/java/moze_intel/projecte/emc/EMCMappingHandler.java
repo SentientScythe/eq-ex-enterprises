@@ -113,6 +113,7 @@ public final class EMCMappingHandler {
 			
 			// e3 specific exports
 			moze_intel.projecte.emc.exporter.GraphExporter.exportEmcValues(emc);
+			moze_intel.projecte.emc.exporter.GraphExporter.exportRecipeInformation(mapper.getConversionsFor());
 			moze_intel.projecte.integration.kubejs.RecipeConflictResolver.flush();
 
 			if (usePregenerated && emc != null) {//Note: It should never be null here as we just set it
