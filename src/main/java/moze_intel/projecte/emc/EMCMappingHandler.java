@@ -20,13 +20,14 @@ import moze_intel.projecte.api.event.EMCRemapEvent;
 import moze_intel.projecte.api.mapper.IEMCMapper;
 import moze_intel.projecte.api.mapper.arithmetic.IValueArithmetic;
 import moze_intel.projecte.api.mapper.collector.IExtendedMappingCollector;
+import moze_intel.projecte.api.mapper.generator.IValueGenerator;
 import moze_intel.projecte.api.nss.NSSItem;
 import moze_intel.projecte.api.nss.NormalizedSimpleStack;
 import moze_intel.projecte.config.MappingConfig;
 import moze_intel.projecte.config.ProjectEConfig;
 import moze_intel.projecte.emc.arithmetic.HiddenBigFractionArithmetic;
 import moze_intel.projecte.emc.collector.DumpToFileCollector;
-import moze_intel.projecte.emc.collector.DumpToFileCollector;
+import moze_intel.projecte.emc.collector.MappingCollector;
 import moze_intel.projecte.emc.components.DataComponentManager;
 import moze_intel.projecte.emc.mappers.TagMapper;
 import moze_intel.projecte.emc.pregenerated.PregeneratedEMC;
@@ -70,8 +71,18 @@ public final class EMCMappingHandler {
 	public static void map(ReloadableServerResources serverResources, RegistryAccess registryAccess, ResourceManager resourceManager) {
 		//Start by clearing the cached map so if values are removed say by setting EMC to zero then we respect the change
 		clearEmcMap();
-		SimpleGraphMapper<NormalizedSimpleStack, Long, IValueArithmetic<Long>> mapper = new SimpleGraphMapper<>(new moze_intel.projecte.emc.arithmetic.LongArithmetic());
-		IExtendedMappingCollector<NormalizedSimpleStack, Long, IValueArithmetic<Long>> mappingCollector = mapper;
+		MappingCollector<NormalizedSimpleStack, Long, IValueArithmetic<Long>> baseMapper;
+		IValueGenerator<NormalizedSimpleStack, Long> valueGenerator;
+		if (MappingConfig.useTopologicalMapper()) {
+			TopologicalGraphMapper<NormalizedSimpleStack, Long, IValueArithmetic<Long>> topMapper = new TopologicalGraphMapper<>(new moze_intel.projecte.emc.arithmetic.LongArithmetic());
+			baseMapper = topMapper;
+			valueGenerator = topMapper;
+		} else {
+			SimpleGraphMapper<NormalizedSimpleStack, Long, IValueArithmetic<Long>> simMapper = new SimpleGraphMapper<>(new moze_intel.projecte.emc.arithmetic.LongArithmetic());
+			baseMapper = simMapper;
+			valueGenerator = simMapper;
+		}
+		IExtendedMappingCollector<NormalizedSimpleStack, Long, IValueArithmetic<Long>> mappingCollector = baseMapper;
 
 		if (MappingConfig.dumpToFile()) {
 			mappingCollector = new DumpToFileCollector<>(ProjectEConfig.CONFIG_DIR.resolve("mapping_dump.json"), mappingCollector);
@@ -105,7 +116,7 @@ public final class EMCMappingHandler {
 			mappingCollector.finishCollection(registryAccess);
 
 			PECore.debugLog("Starting to generate Values:");
-			Map<NormalizedSimpleStack, Long> graphMapperValues = mapper.generateValues();
+			Map<NormalizedSimpleStack, Long> graphMapperValues = valueGenerator.generateValues();
 			PECore.debugLog("Generated Values...");
 
 			updateEmcValues(filterEMCMap(graphMapperValues));
@@ -113,7 +124,7 @@ public final class EMCMappingHandler {
 			
 			// e3 specific exports
 			moze_intel.projecte.emc.exporter.GraphExporter.exportEmcValues(emc);
-			moze_intel.projecte.emc.exporter.GraphExporter.exportRecipeInformation(mapper.getConversionsFor());
+			moze_intel.projecte.emc.exporter.GraphExporter.exportRecipeInformation(baseMapper.getConversionsFor());
 			moze_intel.projecte.integration.kubejs.RecipeConflictResolver.flush();
 
 			if (usePregenerated && emc != null) {//Note: It should never be null here as we just set it

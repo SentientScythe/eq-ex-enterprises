@@ -42,6 +42,7 @@ public class MappingConfig extends BasePEConfig {
 	public final CachedBooleanValue roundingModeCeil;
 	public final CachedBooleanValue kubejsActive;
 	public final CachedBooleanValue exportGraphs;
+	public final CachedBooleanValue useTopologicalMapper;
 
 	private final ModConfigSpec configSpec;
 	private final Map<String, BooleanSupplier> mappersEnabledConfig;
@@ -57,6 +58,7 @@ public class MappingConfig extends BasePEConfig {
 		roundingModeCeil = CachedBooleanValue.wrap(this, builder.comment("If true, fractional division during calculations rounds up (ceil) instead of down (floor)").define("roundingModeCeil", false));
 		kubejsActive = CachedBooleanValue.wrap(this, builder.comment("If true, KubeJS scripts generated to resolve conflicts will contain active code. If false, they will be commented out.").define("kubejsActive", true));
 		exportGraphs = CachedBooleanValue.wrap(this, builder.comment("If true, exports emc_values.json and recipe_information.json to the config/e3 directory.").define("exportGraphs", true));
+		useTopologicalMapper = CachedBooleanValue.wrap(this, builder.comment("If true, uses the new topological sort based graph mapper. If false, uses the legacy SimpleGraphMapper.").define("useTopologicalMapper", true));
 
 		PEConfigTranslations.MAPPING_MAPPERS.applyToBuilder(builder).push("mappers");
 		mappersEnabledConfig = new HashMap<>(mappers.size());
@@ -109,6 +111,10 @@ public class MappingConfig extends BasePEConfig {
 
 	public static boolean exportGraphs() {
 		return INSTANCE == null || INSTANCE.exportGraphs.get();
+	}
+
+	public static boolean useTopologicalMapper() {
+		return INSTANCE == null || INSTANCE.useTopologicalMapper.get();
 	}
 
 	/**
