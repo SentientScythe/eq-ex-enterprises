@@ -64,28 +64,38 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 
 	@Override
 	public Map<T, V> generateValues() {
-		Map<@NotNull T, @NotNull V> values = new HashMap<>();
-
+		Set<T> e3DefaultedLeaves = new java.util.HashSet<>();
 		// e3 specific: Assign 1 to all leaves that don't have a value
 		for (T key : usedIn.keySet()) {
 			if (!fixValueBeforeInherit.containsKey(key) && !conversionsFor.containsKey(key)) {
 				fixValueBeforeInherit.put(key, arithmetic.fromLong(1));
+				e3DefaultedLeaves.add(key);
 			}
 		}
 
-		// All values that changed in previous iteration, so everything depending on it needs to be updated
-		@Nullable
-		Map<@NotNull T, @NotNull V> changedValues = new HashMap<>(fixValueBeforeInherit);
-		@Nullable
-		Map<@NotNull T, @NotNull Object> reasonForChange = null;
-		if (isDebugGraphmapper()) {
-			reasonForChange = new HashMap<>(changedValues.size());
-			for (Map.Entry<T, V> entry : fixValueBeforeInherit.entrySet()) {
-				reasonForChange.put(entry.getKey(), "fixValueBefore");
-			}
-		}
+		Map<T, Integer> leafBumpCount = new HashMap<>();
+		final int MAX_BUMPS = 5;
 
-		while (changedValues != null && !changedValues.isEmpty()) {
+		Map<@NotNull T, @NotNull V> values = new HashMap<>();
+
+		boolean needsRestart = true;
+		while (needsRestart) {
+			needsRestart = false;
+			values.clear();
+
+			// All values that changed in previous iteration, so everything depending on it needs to be updated
+			@Nullable
+			Map<@NotNull T, @NotNull V> changedValues = new HashMap<>(fixValueBeforeInherit);
+			@Nullable
+			Map<@NotNull T, @NotNull Object> reasonForChange = null;
+			if (isDebugGraphmapper()) {
+				reasonForChange = new HashMap<>(changedValues.size());
+				for (Map.Entry<T, V> entry : fixValueBeforeInherit.entrySet()) {
+					reasonForChange.put(entry.getKey(), "fixValueBefore");
+				}
+			}
+
+			while (changedValues != null && !changedValues.isEmpty()) {
 			while (changedValues != null && !changedValues.isEmpty()) {
 				// Changes that happened when processing current changes
 				@Nullable
@@ -164,6 +174,55 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 					//the cost for the ingredients is greater zero, but smaller than the value that the output has.
 					//This is a Loophole. We remove it by setting the value to 0.
 					if (arithmetic.isGreaterThanZero(ingredientValue) && isLessThan(resultValueConversion, resultValueActual)) {
+						// e3 specific: Bidirectional resolution (Strategy A)
+						java.util.List<T> leafIngredients = new java.util.ArrayList<>();
+						for (T ingredient : conversion.ingredientsWithAmount.keySet()) {
+							if (!conversionsFor.containsKey(ingredient)) {
+								leafIngredients.add(ingredient);
+							}
+						}
+						
+						if (leafIngredients.size() == 1) {
+							T leaf = leafIngredients.get(0);
+							int leafAmount = conversion.ingredientsWithAmount.getInt(leaf);
+							V currentLeafValue = values.get(leaf);
+							if (currentLeafValue == null) currentLeafValue = ZERO;
+							
+							V currentLeafContribution = conversion.arithmeticForConversion.mul(leafAmount, currentLeafValue);
+							V requiredTotalIngredientValue = conversion.arithmeticForConversion.sub(
+								conversion.arithmeticForConversion.mul(conversion.outnumber, resultValueActual),
+								conversion.value
+							);
+							
+							V nonLeafContribution = conversion.arithmeticForConversion.sub(ingredientValue, currentLeafContribution);
+							V requiredLeafContribution = conversion.arithmeticForConversion.sub(requiredTotalIngredientValue, nonLeafContribution);
+							
+							V leafAmountMinusOne = arithmetic.fromLong(leafAmount - 1);
+							V newLeafValue = conversion.arithmeticForConversion.div(
+								conversion.arithmeticForConversion.add(requiredLeafContribution, leafAmountMinusOne), 
+								leafAmount
+							);
+							
+							int bumps = leafBumpCount.getOrDefault(leaf, 0);
+							if (e3DefaultedLeaves.contains(leaf) && bumps < MAX_BUMPS && newLeafValue.compareTo(currentLeafValue) > 0) {
+								leafBumpCount.put(leaf, bumps + 1);
+								if (isDebugGraphmapper()) {
+									debugFormat("Bidirectional resolution: Restarting calculation with {} set to {} to resolve exploit in {} (Bump {}/{})", leaf, newLeafValue, conversion, bumps + 1, MAX_BUMPS);
+								}
+								
+								fixValueBeforeInherit.put(leaf, newLeafValue);
+								
+								moze_intel.projecte.integration.kubejs.RecipeConflictResolver.addConflict(
+									null, 
+									leaf.toString(), 
+									"e3.setEMC('" + leaf.toString() + "', " + newLeafValue + ")"
+								);
+								
+								needsRestart = true;
+								break;
+							}
+						}
+
 						Conversion oldConversion = overwriteConversion.get(conversion.output);
 						if (oldConversion != null && oldConversion != conversion) {
 							if (logFoundExploits) {
@@ -171,7 +230,7 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 										ingredientValue, valueOrZero(resultValueActual), oldConversion);
 							}
 						} else if (canOverrideZero(key)) {
-							// e3 specific: KubeJS Conflict Resolver
+							// e3 specific: KubeJS Conflict Resolver (Fallback)
 							moze_intel.projecte.integration.kubejs.RecipeConflictResolver.addConflict(
 								null, 
 								key.toString(), 
@@ -190,6 +249,9 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 							PECore.LOGGER.warn("EMC Exploit: ingredients ({}) cost {} but output value is {}", conversion, ingredientValue, valueOrZero(resultValueActual));
 						}
 					}
+				}
+				if (needsRestart) {
+					break;
 				}
 				if (minConversionValue == null) {//|| arithmetic.isZero(minConversionValue)
 					//we could not find any valid conversion
@@ -210,7 +272,12 @@ public class SimpleGraphMapper<T, V extends Comparable<V>, A extends IValueArith
 					}
 				}
 			}
-		}
+			if (needsRestart) {
+				continue;
+			}
+		} // end while (changedValues != null ...)
+		} // end while (needsRestart)
+		
 		debugPrintln("");
 		values.putAll(fixValueAfterInherit);
 		//Remove all 'free' items from the output-values

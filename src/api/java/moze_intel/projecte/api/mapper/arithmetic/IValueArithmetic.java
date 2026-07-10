@@ -75,6 +75,16 @@ public interface IValueArithmetic<T extends Comparable<T>> {
 	T add(T a, T b);
 
 	/**
+	 * Subtracts one value from another.
+	 *
+	 * @param a The first value.
+	 * @param b The second value to subtract.
+	 *
+	 * @return The result of a - b
+	 */
+	T sub(T a, T b);
+
+	/**
 	 * Multiplies two values together.
 	 *
 	 * @param a The first value to multiply.

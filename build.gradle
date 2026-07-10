@@ -281,6 +281,12 @@ dependencies {
     compileOnly(crt)
     localRuntime(crt)
 
+    // Local dependencies for custom mappers
+    compileOnly(files('c:/Users/senti/e3-test-env/server/mods/create-1.21.1-6.0.10.jar'))
+    compileOnly(files('c:/Users/senti/e3-test-env/server/mods/Quark-4.1-481.jar'))
+    compileOnly(files('c:/Users/senti/e3-test-env/server/mods/YungsApi-1.21.1-NeoForge-5.1.6.jar'))
+    compileOnly(files('c:/Users/senti/e3-test-env/server/mods/Zeta-1.1-40.jar'))
+
     additionalRuntimeClasspath(implementation(shadow(group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1')))
 }
 

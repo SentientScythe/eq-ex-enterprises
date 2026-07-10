@@ -64,6 +64,21 @@ public class FullBigFractionArithmetic implements IValueArithmetic<BigFraction> 
 	}
 
 	@Override
+	public BigFraction sub(BigFraction a, BigFraction b) {
+		if (isZero(b)) {
+			return a;
+		} else if (isZero(a)) {
+			return b.negate();
+		}
+		if (isFree(a)) {
+			return b.negate();
+		} else if (isFree(b)) {
+			return a;
+		}
+		return a.subtract(b);
+	}
+
+	@Override
 	public BigFraction mul(long a, BigFraction b) {
 		if (a == 1 || isZeroOrFree(b)) {
 			//If multiplying by 1 then b

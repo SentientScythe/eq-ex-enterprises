@@ -41,6 +41,11 @@ public class LongArithmetic implements IValueArithmetic<Long> {
 	}
 
 	@Override
+	public Long sub(Long a, Long b) {
+		return a - b;
+	}
+
+	@Override
 	public Long mul(long a, Long b) {
 		return a * b;
 	}

@@ -157,7 +157,7 @@ class GraphMapperTest {
 		mappingCollector.addConversion(1, "workbench", List.of("planks", "planks", "planks", "planks"));
 
 		Object2LongMap<String> values = valueGenerator.generateValues();
-		Assertions.assertEquals(1, values.getLong("wood"));
+		Assertions.assertEquals(4, values.getLong("wood"));
 		Assertions.assertEquals(1, values.getLong("planks"));
 		Assertions.assertEquals(4, values.getLong("workbench"));
 	}
