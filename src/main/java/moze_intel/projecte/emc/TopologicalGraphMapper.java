@@ -59,6 +59,8 @@ public class TopologicalGraphMapper<T, V extends Comparable<V>, A extends IValue
 		
 		// 5. Reverse Topological Sort of SCCs (SCCs are already in reverse topological order from Tarjan's!)
 		// Tarjan's naturally outputs SCCs in reverse topological order (leaves to roots).
+		// We need to evaluate ingredients BEFORE outputs, so we reverse the list.
+		Collections.reverse(sccs);
 
 		Map<T, V> values = new HashMap<>();
 

@@ -28,8 +28,8 @@ class GraphMapperTest {
 		mappingCollector = new LongToBigFractionCollector<>(mapper);
 	}
 
-	private BigFractionToLongGenerator<String> valueGenerator;
-	private IExtendedMappingCollector<String, Long, IValueArithmetic<BigFraction>> mappingCollector;
+	protected BigFractionToLongGenerator<String> valueGenerator;
+	protected IExtendedMappingCollector<String, Long, IValueArithmetic<BigFraction>> mappingCollector;
 
 	@Test
 	@DisplayName("Test generating simple values")

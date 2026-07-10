@@ -40,3 +40,4 @@ $RECYCLE.BIN/
 
 # CodeLens Graph local index
 .codelens/
+.agents/AGENTS.md

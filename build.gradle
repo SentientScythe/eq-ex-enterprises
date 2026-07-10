@@ -10,6 +10,7 @@ plugins {
     id('eclipse')
     id('idea')
     id('maven-publish')
+    id('jacoco')
     id('com.gradleup.shadow') version('8.3.6')
     // https://projects.neoforged.net/neoforged/ModDevGradle
     id('net.neoforged.moddev') version('2.0.78')
@@ -236,11 +237,35 @@ repositories { RepositoryHandler handler ->
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'moze_intel/projecte/gameObjs/block_entities/**',
+                    'moze_intel/projecte/gameObjs/items/**',
+                    'moze_intel/projecte/gameObjs/container/**',
+                    'moze_intel/projecte/gameObjs/gui/**',
+                    'moze_intel/projecte/integration/**',
+                    'moze_intel/projecte/rendering/**',
+                    'moze_intel/projecte/events/**'
+            ])
+        }))
+    }
 }
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_version}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
     testImplementation("net.neoforged:testframework:${neo_version}") {
         transitive = false
     }
